@@ -49,6 +49,8 @@ public class TradeServiceImpl implements TradeService {
 					trade.setId(tradeHighVersion.getId());
 					tradeRepository.save(trade);
 					return "Trade record updated successfully.";
+				} else {
+					return "Maturity date is less than todays date.";
 				}
 			} else if (tradeHighVersion.getTradeVersion()>trade.getTradeVersion()) {
 				throw new LowTradeVersionRejectException("Trade vesion is lower.");

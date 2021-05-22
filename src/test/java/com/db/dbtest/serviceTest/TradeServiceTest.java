@@ -131,6 +131,38 @@ public class TradeServiceTest {
 		assertEquals("Trade record updated successfully.", message);
 	}
 	
+	@Test
+	public void whenTradeIsInValid_SameTradeVersionMaturity_ReturnFail() throws LowTradeVersionRejectException, ParseException {
+		
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date createdDate = new Date();
+        Date maturityDate = sdf.parse("2021-05-20");
+		
+        Trade trade = new Trade();
+		trade.setTradeId("T2");
+		trade.setTradeVersion(3);
+		trade.setBookId("B1");
+		trade.setCounterPartyId("CP-4");
+		trade.setCreatedDate(createdDate);
+		trade.setMaturityDate(maturityDate);
+		trade.setExpired("N");
+		
+		Trade tradeHighVersion = new Trade();
+		tradeHighVersion.setTradeId("T2");
+		tradeHighVersion.setTradeVersion(3);
+		tradeHighVersion.setBookId("B2");
+		tradeHighVersion.setCounterPartyId("CP-3");
+		tradeHighVersion.setCreatedDate(createdDate);
+		tradeHighVersion.setMaturityDate(maturityDate);
+		tradeHighVersion.setExpired("N");
+		
+		Mockito.when(tradeRepository.findFirstByTradeIdOrderByTradeVersionDesc(trade.getTradeId())).thenReturn(tradeHighVersion);
+		Mockito.when(tradeRepository.save(trade)).thenReturn(trade);
+		
+		String message = tradeService.addTrade(trade);
+		assertEquals("Maturity date is less than todays date.", message);
+	}
+	
 	@Test(expected = LowTradeVersionRejectException.class)
 	public void whenTradeIsInValid_LoweTradeVersion_ReturnFail() throws LowTradeVersionRejectException, ParseException {
 		
